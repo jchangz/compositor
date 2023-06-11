@@ -1,4 +1,5 @@
 import { getData } from "@/app/_components/db";
+import Selection from "@/app/_components/selection";
 
 export default async function Page({ params }: { params: { slug: string } }) {
   const { slug } = params;
@@ -7,12 +8,14 @@ export default async function Page({ params }: { params: { slug: string } }) {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="w-full font-bold text-center">{data.title}</div>
-      {data.images.map((img: { url: string; title: string }) => (
-        <div>
-          <img src={img.url}></img>
-          <p>{img.title}</p>
-        </div>
-      ))}
+      {data.images.map(
+        (img: { url: string; title: string; dbClipPath: Array<number> }) => (
+          <div className="relative">
+            <img src={img.url} className="opacity-70"></img>
+            <Selection item={img}></Selection>
+          </div>
+        )
+      )}
     </main>
   );
 }
