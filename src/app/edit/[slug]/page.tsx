@@ -11,7 +11,6 @@ export default async function Page({ params }: { params: { slug: string } }) {
       {data.images.map(
         (img: { url: string; title: string; dbClipPath: Array<number> }) => (
           <div className="relative">
-            <img src={img.url} className="opacity-70"></img>
             <Selection item={img}></Selection>
           </div>
         )
