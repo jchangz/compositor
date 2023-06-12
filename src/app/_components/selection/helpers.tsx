@@ -1,5 +1,7 @@
+import { ImageProps } from "./selection.types";
+
 export const calculateDragHandlesFromClipPath = (
-  clipPathArr: Array<number>,
+  clipPathArr: Number[],
   imageProps: ImageProps
 ) => {
   // ClipPath is saved in percentage, and we convert into pixels for the handles positioning which is based on a transform in pixel values

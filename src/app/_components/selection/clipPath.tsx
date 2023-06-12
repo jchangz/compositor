@@ -6,7 +6,8 @@ import { useSpring, a } from "@react-spring/web";
 import DragHandle from "./dragHandle";
 import Image from "next/image";
 import { clamp } from "./helpers";
-import { ClipPathUpdate, ImageProps } from "./selection.types";
+import { ImageProps } from "./selection.types";
+import { calculateDragHandlesFromClipPath } from "./helpers";
 
 export default function ClipPathImage({
   imageProps,
@@ -17,7 +18,9 @@ export default function ClipPathImage({
 }) {
   const selectionBoundsRef = useRef<HTMLDivElement>(null);
   const [showDragHandles, setShowDragHandles] = useState(true);
-  const handlesRef = useRef<Array<Array<number>>>(null);
+  const [dragHandleData, setDragHandleData] = useState<Array<Array<number>>>(
+    []
+  );
   const [clipPathProps, animateClipPath] = useSpring(() => ({
     from: {
       path: Array(8).fill(50),
@@ -25,50 +28,23 @@ export default function ClipPathImage({
     path: Array(8).fill(50),
   }));
 
-  const calculateDragHandle = (
-    ix: number,
-    iy: number,
-    x: number,
-    y: number
-  ) => {
-    const { left, right, top, bottom } = imageProps;
+  const calculateClipPath = (ix: number, iy: number, x: number, y: number) => {
+    const { left, right, top, bottom, height, width } = imageProps;
+    const widthCalc = (w: number) => Math.round((w / width) * 100);
+    const heightCalc = (h: number) => Math.round((h / height) * 100);
+
     const selectionCoordinates = [
-      [clamp(x, left, right) - left, ix - left],
-      [clamp(y, top, bottom) - top, iy - top],
+      widthCalc(clamp(x, left, right) - left),
+      heightCalc(clamp(y, top, bottom) - top),
+      widthCalc(ix - left),
+      heightCalc(clamp(y, top, bottom) - top),
+      widthCalc(clamp(x, left, right) - left),
+      heightCalc(iy - top),
+      widthCalc(ix - left),
+      heightCalc(iy - top),
     ];
-    const getHandles = (arr: Array<Array<number>>) => {
-      if (arr.length === 1) return arr[0];
-      const handles = [];
-      const recursion = getHandles(arr.slice(1));
-      for (let i = 0; i < recursion.length; i += 1) {
-        for (let j = 0; j < arr[0].length; j += 1) {
-          handles.push([].concat(arr[0][j], recursion[i]));
-        }
-      }
-      return handles;
-    };
-    handlesRef.current = getHandles(selectionCoordinates);
-  };
 
-  const calculateClipPath = (update?: ClipPathUpdate) => {
-    const { height, width } = imageProps;
-    // Deep copy otherwise handles adjustment will recursively add to itself
-    const dragHandleCoordinates = JSON.parse(
-      JSON.stringify(handlesRef.current)
-    );
-    const clipPathCoordinates = [];
-
-    if (update) {
-      dragHandleCoordinates[update.index][0] += update.x;
-      dragHandleCoordinates[update.index][1] += update.y;
-    }
-    for (let i = 0; i < dragHandleCoordinates.length; i += 1) {
-      const x = Math.round((dragHandleCoordinates[i][0] / width) * 100);
-      const y = Math.round((dragHandleCoordinates[i][1] / height) * 100);
-      clipPathCoordinates.push(x, y);
-    }
-
-    return clipPathCoordinates;
+    return selectionCoordinates;
   };
 
   const drawClipPath = useCallback(
@@ -91,18 +67,32 @@ export default function ClipPathImage({
   );
 
   useEffect(() => {
+    const initialClipPath = item.dbClipPath || [0, 0, 100, 0, 0, 100, 100, 0];
     drawClipPath({
-      path: item.dbClipPath || [0, 0, 0, 100, 100, 100, 100, 0],
+      path: initialClipPath,
       config: { mass: 1, tension: 170, friction: 26 },
     });
-  }, [drawClipPath, item.dbClipPath]);
+    setDragHandleData(
+      calculateDragHandlesFromClipPath(initialClipPath, imageProps)
+    );
+  }, [drawClipPath, item.dbClipPath, imageProps]);
 
   const bindClipPath = useDrag(
     ({ active, first, initial: [ix, iy], xy: [x, y] }) => {
       if (first) setShowDragHandles(false);
-      calculateDragHandle(ix, iy, x, y);
-      drawClipPath({ path: calculateClipPath() });
+      console.log(ix, iy);
+      const newPath = calculateClipPath(
+        ix,
+        iy + window.scrollY,
+        x,
+        y + window.scrollY
+      );
+      drawClipPath({ path: newPath });
       if (!active) {
+        // Calculate the drag handles after selection is over
+        setDragHandleData(
+          calculateDragHandlesFromClipPath(newPath, imageProps)
+        );
         setShowDragHandles(true);
       }
     },
@@ -133,8 +123,8 @@ export default function ClipPathImage({
       </div>
       <DragHandle
         showDragHandles={showDragHandles}
-        handlesRef={handlesRef}
-        calculateClipPath={calculateClipPath}
+        dragHandleData={dragHandleData}
+        imageProps={imageProps}
         drawClipPath={drawClipPath}
       />
     </>

@@ -1,17 +1,26 @@
-import React, { useRef, useEffect, RefObject } from "react";
+import React, { useRef, useEffect } from "react";
 import { useDrag } from "@use-gesture/react";
 import { useSprings, a } from "@react-spring/web";
+import { ClipPathUpdate, ImageProps } from "./selection.types";
 
 export default function DragHandle({
-  calculateClipPath,
-  handlesRef,
-  drawClipPath,
   showDragHandles,
+  dragHandleData,
+  drawClipPath,
+  imageProps,
 }: {
-  calculateClipPath: React.FC;
-  handlesRef: RefObject<Array<any>>;
-  drawClipPath: React.FC;
   showDragHandles: Boolean;
+  dragHandleData: Array<Array<number>>;
+  drawClipPath: ({
+    path,
+    config,
+    immediate,
+  }: {
+    path: Array<Number>;
+    config?: Object | undefined;
+    immediate?: boolean | undefined;
+  }) => void;
+  imageProps: ImageProps;
 }) {
   const dragHandleWidth = 26;
   const dragHandleBoundary = useRef<HTMLDivElement>(null);
@@ -23,11 +32,30 @@ export default function DragHandle({
     config: { mass: 1, tension: 270, friction: 25 },
   }));
 
+  const calculateClipPath = (update?: ClipPathUpdate) => {
+    const { height, width } = imageProps;
+    // Deep copy otherwise handles adjustment will recursively add to itself
+    const dragHandleCoordinates = JSON.parse(JSON.stringify(dragHandleData));
+    const clipPathCoordinates = [];
+
+    if (update) {
+      dragHandleCoordinates[update.index][0] += update.x;
+      dragHandleCoordinates[update.index][1] += update.y;
+    }
+    for (let i = 0; i < dragHandleCoordinates.length; i += 1) {
+      const x = Math.round((dragHandleCoordinates[i][0] / width) * 100);
+      const y = Math.round((dragHandleCoordinates[i][1] / height) * 100);
+      clipPathCoordinates.push(x, y);
+    }
+
+    return clipPathCoordinates;
+  };
+
   useEffect(() => {
-    if (handlesRef.current && showDragHandles) {
+    if (dragHandleData.length && showDragHandles) {
       animateDragHandles.start((index) => ({
-        x: handlesRef.current![index][0] - dragHandleWidth / 2,
-        y: handlesRef.current![index][1] - dragHandleWidth / 2,
+        x: dragHandleData[index][0] - dragHandleWidth / 2,
+        y: dragHandleData[index][1] - dragHandleWidth / 2,
         immediate: true,
       }));
       animateDragHandles.start((index) => ({
@@ -40,7 +68,7 @@ export default function DragHandle({
         opacity: 0,
       }));
     }
-  }, [animateDragHandles, handlesRef, showDragHandles]);
+  }, [animateDragHandles, dragHandleData, showDragHandles]);
 
   const bindDragHandle = useDrag(
     ({ args: [originalIndex], active, movement: [mx, my] }) => {
@@ -52,11 +80,11 @@ export default function DragHandle({
       drawClipPath({ path: newPath });
       animateDragHandles.start((index) => ({
         x:
-          handlesRef.current![index][0] -
+          dragHandleData[index][0] -
           dragHandleWidth / 2 +
           (index === originalIndex ? mx : 0),
         y:
-          handlesRef.current![index][1] -
+          dragHandleData[index][1] -
           dragHandleWidth / 2 +
           (index === originalIndex ? my : 0),
         scale: 0.5,
@@ -64,8 +92,8 @@ export default function DragHandle({
 
       if (!active) {
         animateDragHandles.start(() => ({ scale: 1 }));
-        handlesRef.current![originalIndex][0] += mx;
-        handlesRef.current![originalIndex][1] += my;
+        dragHandleData[originalIndex][0] += mx;
+        dragHandleData[originalIndex][1] += my;
       }
     },
     {
