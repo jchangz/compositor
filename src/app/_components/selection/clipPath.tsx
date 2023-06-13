@@ -3,11 +3,10 @@
 import React, { useRef, useEffect, useCallback, useState } from "react";
 import { useDrag } from "@use-gesture/react";
 import { useSpring, a } from "@react-spring/web";
-import DragHandle from "./dragHandle";
 import Image from "next/image";
-import { clamp } from "./helpers";
+import DragHandle from "./dragHandle";
+import { clamp, calculateDragHandlesFromClipPath } from "./helpers";
 import { ImageProps } from "./selection.types";
-import { calculateDragHandlesFromClipPath } from "./helpers";
 
 export default function ClipPathImage({
   imageProps,
@@ -21,6 +20,8 @@ export default function ClipPathImage({
   const [dragHandleData, setDragHandleData] = useState<Array<Array<number>>>(
     []
   );
+  // Keep track of the scroll position of the window on first render
+  const initialScrollY = useRef(0);
   const [clipPathProps, animateClipPath] = useSpring(() => ({
     from: {
       path: Array(8).fill(50),
@@ -29,19 +30,22 @@ export default function ClipPathImage({
   }));
 
   const calculateClipPath = (ix: number, iy: number, x: number, y: number) => {
-    const { left, right, top, bottom, height, width } = imageProps;
+    const { left, right, top, height, width } = imageProps;
     const widthCalc = (w: number) => Math.round((w / width) * 100);
     const heightCalc = (h: number) => Math.round((h / height) * 100);
 
+    const newScrollY = initialScrollY.current - window.scrollY;
+    const newTop = top + newScrollY;
+
     const selectionCoordinates = [
       widthCalc(clamp(x, left, right) - left),
-      heightCalc(clamp(y, top, bottom) - top),
+      clamp(heightCalc(y - newTop), 0, 100),
       widthCalc(ix - left),
-      heightCalc(clamp(y, top, bottom) - top),
+      clamp(heightCalc(y - newTop), 0, 100),
       widthCalc(clamp(x, left, right) - left),
-      heightCalc(iy - top),
+      heightCalc(iy - newTop),
       widthCalc(ix - left),
-      heightCalc(iy - top),
+      heightCalc(iy - newTop),
     ];
 
     return selectionCoordinates;
@@ -75,18 +79,13 @@ export default function ClipPathImage({
     setDragHandleData(
       calculateDragHandlesFromClipPath(initialClipPath, imageProps)
     );
+    initialScrollY.current = window.scrollY;
   }, [drawClipPath, item.dbClipPath, imageProps]);
 
   const bindClipPath = useDrag(
     ({ active, first, initial: [ix, iy], xy: [x, y] }) => {
       if (first) setShowDragHandles(false);
-      console.log(ix, iy);
-      const newPath = calculateClipPath(
-        ix,
-        iy + window.scrollY,
-        x,
-        y + window.scrollY
-      );
+      const newPath = calculateClipPath(ix, iy, x, y);
       drawClipPath({ path: newPath });
       if (!active) {
         // Calculate the drag handles after selection is over
