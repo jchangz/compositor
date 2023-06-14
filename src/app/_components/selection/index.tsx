@@ -35,7 +35,7 @@ export default function Selection({
   };
 
   useEffect(() => {
-    updateImageProps();
+    if (windowSize) updateImageProps();
   }, [windowSize]);
 
   return (
