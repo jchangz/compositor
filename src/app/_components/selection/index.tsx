@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import useWindowSize from "../helpers/useWindowSize";
 import ClipPathImage from "./clipPath";
 import Image from "next/image";
 import { ImageProps } from "./selection.types";
@@ -10,51 +11,45 @@ export default function Selection({
 }: {
   item: { url: string; dbClipPath: Array<Number> };
 }) {
+  // Reference to the image where we can get the properties
   const image = useRef<HTMLImageElement>(null);
-  const imageProps = useRef<ImageProps>({
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    height: 0,
-    width: 0,
-  });
-  const [showClipPath, setShowClipPath] = useState(false);
+  // Keep the image properites in state to have the correct dimensions when we resize
+  const [imageProps, setImageProps] = useState<ImageProps | null>(null);
+  // Custom hook for monitoring window resize
+  const windowSize = useWindowSize();
 
-  useEffect(() => {
+  const updateImageProps = () => {
     if (image.current) {
       const { top, right, bottom, left, height, width } =
         image.current.getBoundingClientRect();
 
-      imageProps.current = {
+      setImageProps({
         top: Math.round(top),
         right: Math.round(right),
         bottom: Math.round(bottom + window.scrollY),
         left: Math.round(left),
         height: Math.round(height),
         width: Math.round(width),
-      };
+      });
     }
-  }, []);
-
-  const onLoadComplete = () => {
-    setShowClipPath(true);
   };
+
+  useEffect(() => {
+    updateImageProps();
+  }, [windowSize]);
 
   return (
     <>
-      <div style={{ height: "500px", width: "500px", position: "relative" }}>
+      <div className="relative aspect-[5/4]">
         <Image
-          onLoadingComplete={onLoadComplete}
+          onLoadingComplete={updateImageProps}
           ref={image}
           src={item.url}
-          className="opacity-70"
+          className="opacity-30"
           fill={true}
           alt=""
         />
-        {showClipPath && (
-          <ClipPathImage imageProps={imageProps.current} item={item} />
-        )}
+        {imageProps && <ClipPathImage imageProps={imageProps} item={item} />}
       </div>
     </>
   );
