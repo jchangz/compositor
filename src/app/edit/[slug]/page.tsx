@@ -8,13 +8,15 @@ export default async function Page({ params }: { params: { slug: string } }) {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="w-full font-bold text-center">{data.title}</div>
-      {data.images.map(
-        (img: { url: string; title: string; dbClipPath: Array<number> }) => (
-          <div className="relative">
-            <Selection item={img}></Selection>
-          </div>
-        )
-      )}
+      <div className="grid grid-cols-2 w-full max-w-7xl">
+        {data.images.map(
+          (img: { url: string; title: string; dbClipPath: Array<number> }) => (
+            <div className="relative">
+              <Selection item={img}></Selection>
+            </div>
+          )
+        )}
+      </div>
     </main>
   );
 }
