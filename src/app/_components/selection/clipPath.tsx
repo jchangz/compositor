@@ -24,9 +24,9 @@ export default function ClipPathImage({
   const initialScrollY = useRef(0);
   const [clipPathProps, animateClipPath] = useSpring(() => ({
     from: {
-      path: Array(8).fill(50),
+      path: [0, 0, 0, 100, 100, 0, 100, 100],
     },
-    path: Array(8).fill(50),
+    path: [0, 0, 0, 100, 100, 0, 100, 100],
   }));
 
   const calculateClipPath = (ix: number, iy: number, x: number, y: number) => {

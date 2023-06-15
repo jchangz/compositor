@@ -45,7 +45,7 @@ export default function Selection({
           onLoadingComplete={updateImageProps}
           ref={image}
           src={item.url}
-          className="opacity-30"
+          className={imageProps ? "opacity-30" : "opacity-100"}
           fill={true}
           alt=""
         />
