@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
 import useWindowSize from "../helpers/useWindowSize";
 import ClipPathImage from "./clipPath";
