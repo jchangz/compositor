@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useRef, useEffect, useCallback, useState } from "react";
+import { useRef, useEffect, useCallback, useState, useMemo } from "react";
 import { useDrag } from "@use-gesture/react";
 import { useSpring, a } from "@react-spring/web";
+import { useDispatch } from "react-redux";
+import { throttle } from "lodash";
+import { setClipPath } from "@/store/clipPathSlice";
 import Image from "next/image";
 import DragHandle from "./dragHandle";
 import { clamp, calculateDragHandlesFromClipPath } from "./helpers";
@@ -15,6 +18,7 @@ export default function ClipPathImage({
   imageProps: ImageProps;
   item: { url: string; dbClipPath: Array<Number> };
 }) {
+  const dispatch = useDispatch();
   const selectionBoundsRef = useRef<HTMLDivElement>(null);
   const [showDragHandles, setShowDragHandles] = useState(true);
   const [dragHandleData, setDragHandleData] = useState<Array<Array<number>>>(
@@ -51,6 +55,14 @@ export default function ClipPathImage({
     return selectionCoordinates;
   };
 
+  const throttleDispatch = useMemo(
+    () =>
+      throttle((url, path) => {
+        dispatch(setClipPath({ id: url, clipPath: path }));
+      }, 100),
+    [dispatch]
+  );
+
   const drawClipPath = useCallback(
     ({
       path,
@@ -66,8 +78,10 @@ export default function ClipPathImage({
         config: config || { mass: 1, tension: 270, friction: 25 },
         immediate: immediate || false,
       }));
+
+      throttleDispatch(item.url, path);
     },
-    [animateClipPath]
+    [animateClipPath, item.url, throttleDispatch]
   );
 
   useEffect(() => {
@@ -117,7 +131,7 @@ export default function ClipPathImage({
             ),
           }}
         >
-          <Image src={item.url} fill={true} alt="" />
+          <Image src={item.url} sizes="50vw" fill={true} alt="" />
         </a.div>
       </div>
       <DragHandle

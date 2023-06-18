@@ -44,6 +44,7 @@ export default function Selection({
           ref={image}
           src={item.url}
           className={imageProps ? "opacity-30" : "opacity-100"}
+          sizes="50vw"
           fill={true}
           alt=""
         />
