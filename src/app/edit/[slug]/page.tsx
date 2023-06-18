@@ -1,5 +1,7 @@
 import { getData } from "@/app/_components/db";
+import Providers from "@/components/provider";
 import Grid from "@/app/_image/grid";
+import Preview from "@/components/preview";
 
 export default async function Page({ params }: { params: { slug: string } }) {
   const { slug } = params;
@@ -7,8 +9,10 @@ export default async function Page({ params }: { params: { slug: string } }) {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="w-full font-bold text-center">{data.title}</div>
-      <Grid data={data} />
+      <Providers>
+        <Grid data={data} />
+        <Preview data={data} />
+      </Providers>
     </main>
   );
 }
