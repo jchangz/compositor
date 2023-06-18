@@ -7,3 +7,5 @@ export const store = configureStore({
     clipPath: clipPathReducer,
   },
 });
+
+export type RootState = ReturnType<typeof store.getState>;

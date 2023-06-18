@@ -6,7 +6,13 @@ interface ClipPathPayload {
   clipPath: Array<number>;
 }
 
-const initialState = { data: {} };
+interface ClipPathData {
+  data: {
+    [id: string]: Array<number>;
+  };
+}
+
+const initialState: ClipPathData = { data: {} };
 
 const clipPathSlice = createSlice({
   name: "clipPath",
