@@ -1,7 +1,6 @@
 import { getData } from "@/app/_components/db";
 import Providers from "@/components/provider";
-import Grid from "@/app/_image/grid";
-import Preview from "@/components/preview";
+import EditLayout from "./_layout";
 
 export default async function Page({ params }: { params: { slug: string } }) {
   const { slug } = params;
@@ -10,8 +9,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <Providers>
-        <Grid data={data} />
-        <Preview data={data} />
+        <EditLayout data={data} />
       </Providers>
     </main>
   );
