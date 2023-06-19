@@ -1,7 +1,8 @@
 import React, { useRef, useEffect } from "react";
 import { useDrag } from "@use-gesture/react";
 import { useSprings, a } from "@react-spring/web";
-import { ClipPathUpdate, ImageProps } from "./selection.types";
+import { ImagePropsData } from "@/shared/interfaces/imageData.interface";
+import { DrawClipPathData } from "@/shared/interfaces/clipPathData.interface";
 
 export default function DragHandle({
   showDragHandles,
@@ -11,16 +12,8 @@ export default function DragHandle({
 }: {
   showDragHandles: Boolean;
   dragHandleData: Array<Array<number>>;
-  drawClipPath: ({
-    path,
-    config,
-    immediate,
-  }: {
-    path: Array<Number>;
-    config?: Object | undefined;
-    immediate?: boolean | undefined;
-  }) => void;
-  imageProps: ImageProps;
+  drawClipPath: ({ path, config, immediate }: DrawClipPathData) => void;
+  imageProps: ImagePropsData;
 }) {
   const dragHandleWidth = 26;
   const dragHandleBoundary = useRef<HTMLDivElement>(null);
@@ -32,7 +25,11 @@ export default function DragHandle({
     config: { mass: 1, tension: 270, friction: 25 },
   }));
 
-  const calculateClipPath = (update?: ClipPathUpdate) => {
+  const calculateClipPath = (update?: {
+    index: number;
+    x: number;
+    y: number;
+  }) => {
     const { height, width } = imageProps;
     // Deep copy otherwise handles adjustment will recursively add to itself
     const dragHandleCoordinates = JSON.parse(JSON.stringify(dragHandleData));

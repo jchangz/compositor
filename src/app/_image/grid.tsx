@@ -1,17 +1,18 @@
 "use client";
 
 import Selection from "../_components/selection";
+import { RouteData, ImageData } from "@/shared/interfaces/imageData.interface";
 
-export default function Grid({ data }: { data: { images: Array<any> } }) {
+export default function Grid({ data }: { data: RouteData }) {
+  const { images } = data;
+
   return (
-    <div className="grid grid-cols-2 w-full max-w-7xl">
-      {data.images.map(
-        (img: { url: string; title: string; dbClipPath: Array<number> }) => (
-          <div className="relative" key={img.url}>
-            <Selection item={img}></Selection>
-          </div>
-        )
-      )}
-    </div>
+    <>
+      {images.map((img: ImageData) => (
+        <div className="relative" key={img.url}>
+          <Selection image={img}></Selection>
+        </div>
+      ))}
+    </>
   );
 }

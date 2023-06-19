@@ -2,24 +2,24 @@ import { useEffect, useRef, useState } from "react";
 import useWindowSize from "../helpers/useWindowSize";
 import ClipPathImage from "./clipPath";
 import Image from "next/image";
-import { ImageProps } from "./selection.types";
+import {
+  ImageData,
+  ImagePropsData,
+} from "@/shared/interfaces/imageData.interface";
 
-export default function Selection({
-  item,
-}: {
-  item: { url: string; dbClipPath: Array<Number> };
-}) {
+export default function Selection({ image }: { image: ImageData }) {
+  const { url } = image;
   // Reference to the image where we can get the properties
-  const image = useRef<HTMLImageElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
   // Keep the image properites in state to have the correct dimensions when we resize
-  const [imageProps, setImageProps] = useState<ImageProps | null>(null);
+  const [imageProps, setImageProps] = useState<ImagePropsData | null>(null);
   // Custom hook for monitoring window resize
   const windowSize = useWindowSize();
 
   const updateImageProps = () => {
-    if (image.current) {
+    if (imageRef.current) {
       const { top, right, bottom, left, height, width } =
-        image.current.getBoundingClientRect();
+        imageRef.current.getBoundingClientRect();
 
       setImageProps({
         top: Math.round(top),
@@ -41,14 +41,14 @@ export default function Selection({
       <div className="relative aspect-[5/4]">
         <Image
           onLoadingComplete={updateImageProps}
-          ref={image}
-          src={item.url}
+          ref={imageRef}
+          src={url}
           className={imageProps ? "opacity-30" : "opacity-100"}
           sizes="50vw"
           fill={true}
           alt=""
         />
-        {imageProps && <ClipPathImage imageProps={imageProps} item={item} />}
+        {imageProps && <ClipPathImage imageProps={imageProps} image={image} />}
       </div>
     </>
   );

@@ -1,8 +1,8 @@
-import { ImageProps } from "./selection.types";
+import { ImagePropsData } from "@/shared/interfaces/imageData.interface";
 
 export const calculateDragHandlesFromClipPath = (
   clipPathArr: Number[],
-  imageProps: ImageProps
+  imageProps: ImagePropsData
 ) => {
   // ClipPath is saved in percentage, and we convert into pixels for the handles positioning which is based on a transform in pixel values
   // If size of images changes, we can still get the correct relative pixel values

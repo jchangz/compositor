@@ -1,27 +1,18 @@
 "use client";
 
-import Image from "next/image";
 import ClipPathPreview from "./clipPath";
+import { RouteData } from "@/shared/interfaces/imageData.interface";
 
-export default function Preview({ data }) {
+export default function Preview({ data }: { data: RouteData }) {
+  const { images } = data;
+
   return (
-    <>
-      <div className="fixed w-[400px] right-0">
-        {data.images.map(
-          (img: { url: string; title: string; dbClipPath: Array<number> }) => (
-            <div className="absolute w-[500px] aspect-[5/4]" key={img.url}>
-              <Image
-                src={img.url}
-                className="opacity-0"
-                fill={true}
-                sizes="50vw"
-                alt=""
-              />
-              <ClipPathPreview item={img} />
-            </div>
-          )
-        )}
-      </div>
-    </>
+    <div className="fixed w-[400px] right-0">
+      {images.map((img) => (
+        <div className="absolute w-[500px] aspect-[5/4]" key={img.id}>
+          <ClipPathPreview item={img} />
+        </div>
+      ))}
+    </div>
   );
 }

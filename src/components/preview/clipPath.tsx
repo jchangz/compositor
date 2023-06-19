@@ -3,16 +3,15 @@ import { useSpring, a } from "@react-spring/web";
 import Image from "next/image";
 import { TypedUseSelectorHook, useSelector } from "react-redux";
 import { RootState } from "@/store";
+import { ImageData } from "@/shared/interfaces/imageData.interface";
+import { DrawClipPathData } from "@/shared/interfaces/clipPathData.interface";
 
 const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
-export default function ClipPathPreview({
-  item,
-}: {
-  item: { url: string; dbClipPath: Array<Number> };
-}) {
+export default function ClipPathPreview({ item }: { item: ImageData }) {
   const clipPathState = useAppSelector((state) => state.clipPath);
   const { data } = clipPathState;
+  const { id, url } = item;
 
   const [clipPathProps, animateClipPath] = useSpring(() => ({
     from: {
@@ -22,15 +21,7 @@ export default function ClipPathPreview({
   }));
 
   const drawClipPath = useCallback(
-    ({
-      path,
-      config,
-      immediate,
-    }: {
-      path: Array<Number>;
-      config?: Object;
-      immediate?: boolean;
-    }) => {
+    ({ path, config, immediate }: DrawClipPathData) => {
       animateClipPath.start(() => ({
         path,
         config: config || { mass: 1, tension: 270, friction: 25 },
@@ -41,13 +32,13 @@ export default function ClipPathPreview({
   );
 
   useEffect(() => {
-    if (data[item.url]) {
+    if (data[id]) {
       drawClipPath({
-        path: data[item.url],
+        path: data[id],
         config: { mass: 1, tension: 170, friction: 26 },
       });
     }
-  }, [data, drawClipPath, item.url]);
+  }, [data, drawClipPath, id]);
 
   return (
     <>
@@ -61,7 +52,7 @@ export default function ClipPathPreview({
             ),
           }}
         >
-          <Image src={item.url} fill={true} alt="" />
+          <Image src={url} fill={true} alt="" />
         </a.div>
       </div>
     </>

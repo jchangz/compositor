@@ -9,15 +9,20 @@ import { setClipPath } from "@/store/clipPathSlice";
 import Image from "next/image";
 import DragHandle from "./dragHandle";
 import { clamp, calculateDragHandlesFromClipPath } from "./helpers";
-import { ImageProps } from "./selection.types";
+import {
+  ImageData,
+  ImagePropsData,
+} from "@/shared/interfaces/imageData.interface";
+import { DrawClipPathData } from "@/shared/interfaces/clipPathData.interface";
 
 export default function ClipPathImage({
   imageProps,
-  item,
+  image,
 }: {
-  imageProps: ImageProps;
-  item: { url: string; dbClipPath: Array<Number> };
+  imageProps: ImagePropsData;
+  image: ImageData;
 }) {
+  const { id, url, dbClipPath } = image;
   const dispatch = useDispatch();
   const selectionBoundsRef = useRef<HTMLDivElement>(null);
   const [showDragHandles, setShowDragHandles] = useState(true);
@@ -57,35 +62,27 @@ export default function ClipPathImage({
 
   const throttleDispatch = useMemo(
     () =>
-      throttle((url, path) => {
-        dispatch(setClipPath({ id: url, clipPath: path }));
+      throttle((id, path) => {
+        dispatch(setClipPath({ id: id, clipPath: path }));
       }, 100),
     [dispatch]
   );
 
   const drawClipPath = useCallback(
-    ({
-      path,
-      config,
-      immediate,
-    }: {
-      path: Array<Number>;
-      config?: Object;
-      immediate?: boolean;
-    }) => {
+    ({ path, config, immediate }: DrawClipPathData) => {
       animateClipPath.start(() => ({
         path,
         config: config || { mass: 1, tension: 270, friction: 25 },
         immediate: immediate || false,
       }));
 
-      throttleDispatch(item.url, path);
+      throttleDispatch(id, path);
     },
-    [animateClipPath, item.url, throttleDispatch]
+    [animateClipPath, id, throttleDispatch]
   );
 
   useEffect(() => {
-    const initialClipPath = item.dbClipPath || [0, 0, 100, 0, 0, 100, 100, 0];
+    const initialClipPath = dbClipPath || [0, 0, 100, 0, 0, 100, 100, 0];
     drawClipPath({
       path: initialClipPath,
       config: { mass: 1, tension: 170, friction: 26 },
@@ -94,7 +91,7 @@ export default function ClipPathImage({
       calculateDragHandlesFromClipPath(initialClipPath, imageProps)
     );
     initialScrollY.current = window.scrollY;
-  }, [drawClipPath, item.dbClipPath, imageProps]);
+  }, [drawClipPath, imageProps, dbClipPath]);
 
   const bindClipPath = useDrag(
     ({ active, first, initial: [ix, iy], xy: [x, y] }) => {
@@ -131,7 +128,7 @@ export default function ClipPathImage({
             ),
           }}
         >
-          <Image src={item.url} sizes="50vw" fill={true} alt="" />
+          <Image src={url} sizes="50vw" fill={true} alt="" />
         </a.div>
       </div>
       <DragHandle
