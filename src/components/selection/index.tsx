@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import useWindowSize from "../helpers/useWindowSize";
+import useWindowSize from "./useWindowSize";
 import ClipPathImage from "./clipPath";
 import Image from "next/image";
 import {

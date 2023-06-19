@@ -1,6 +1,6 @@
 "use client";
 
-import Selection from "@/app/_components/selection";
+import Selection from "@/components/selection";
 import Preview from "@/components/preview";
 import { RouteData, ImageData } from "@/shared/interfaces/imageData.interface";
 
