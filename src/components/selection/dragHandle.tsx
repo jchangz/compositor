@@ -1,15 +1,18 @@
 import React, { useRef, useEffect } from "react";
 import { useDrag } from "@use-gesture/react";
 import { useSprings, a } from "@react-spring/web";
+import { saveClipPathToIDB } from "@/database";
 import { ImagePropsData } from "@/shared/interfaces/imageData.interface";
 import { DrawClipPathData } from "@/shared/interfaces/clipPathData.interface";
 
 export default function DragHandle({
+  id,
   showDragHandles,
   dragHandleData,
   drawClipPath,
   imageProps,
 }: {
+  id: string;
   showDragHandles: Boolean;
   dragHandleData: Array<Array<number>>;
   drawClipPath: ({ path, config, immediate }: DrawClipPathData) => void;
@@ -88,6 +91,7 @@ export default function DragHandle({
       }));
 
       if (!active) {
+        saveClipPathToIDB(newPath, id);
         animateDragHandles.start(() => ({ scale: 1 }));
         dragHandleData[originalIndex][0] += mx;
         dragHandleData[originalIndex][1] += my;

@@ -8,6 +8,7 @@ import { throttle } from "lodash";
 import { setClipPath } from "@/store/clipPathSlice";
 import Image from "next/image";
 import DragHandle from "./dragHandle";
+import { getClipPathFromIDB, saveClipPathToIDB } from "@/database";
 import { clamp, calculateDragHandlesFromClipPath } from "./helpers";
 import {
   ImageData,
@@ -82,16 +83,19 @@ export default function ClipPathImage({
   );
 
   useEffect(() => {
-    const initialClipPath = dbClipPath || [0, 0, 100, 0, 0, 100, 100, 0];
-    drawClipPath({
-      path: initialClipPath,
-      config: { mass: 1, tension: 170, friction: 26 },
+    getClipPathFromIDB(id).then((clipPath) => {
+      // If exists, use clip path from indexedDB else use the default clip path
+      const initialClipPath = clipPath || dbClipPath;
+      drawClipPath({
+        path: initialClipPath,
+        config: { mass: 1, tension: 170, friction: 26 },
+      });
+      setDragHandleData(
+        calculateDragHandlesFromClipPath(initialClipPath, imageProps)
+      );
+      initialScrollY.current = window.scrollY;
     });
-    setDragHandleData(
-      calculateDragHandlesFromClipPath(initialClipPath, imageProps)
-    );
-    initialScrollY.current = window.scrollY;
-  }, [drawClipPath, imageProps, dbClipPath]);
+  }, [drawClipPath, imageProps, dbClipPath, id]);
 
   const bindClipPath = useDrag(
     ({ active, first, initial: [ix, iy], xy: [x, y] }) => {
@@ -99,6 +103,7 @@ export default function ClipPathImage({
       const newPath = calculateClipPath(ix, iy, x, y);
       drawClipPath({ path: newPath });
       if (!active) {
+        saveClipPathToIDB(newPath, id);
         // Calculate the drag handles after selection is over
         setDragHandleData(
           calculateDragHandlesFromClipPath(newPath, imageProps)
@@ -132,6 +137,7 @@ export default function ClipPathImage({
         </a.div>
       </div>
       <DragHandle
+        id={id}
         showDragHandles={showDragHandles}
         dragHandleData={dragHandleData}
         imageProps={imageProps}
