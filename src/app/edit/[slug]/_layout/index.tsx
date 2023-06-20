@@ -1,24 +1,35 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { initializeIDB } from "@/database";
 import Selection from "@/components/selection";
 import Preview from "@/components/preview";
 import { RouteData, ImageData } from "@/shared/interfaces/imageData.interface";
 
 export default function EditLayout({ data }: { data: RouteData }) {
   const { images } = data;
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    initializeIDB(data).then(() => setReady(true));
+  }, [data]);
 
   return (
-    <div className="grid grid-cols-2 w-full max-w-7xl">
-      <>
+    <>
+      {ready ? (
         <>
-          {images.map((img: ImageData) => (
-            <div className="relative" key={img.url}>
-              <Selection image={img}></Selection>
-            </div>
-          ))}
+          <div className="grid grid-cols-2 w-full max-w-7xl">
+            {images.map((img: ImageData) => (
+              <div className="relative" key={img.id}>
+                <Selection image={img}></Selection>
+              </div>
+            ))}
+          </div>
+          <Preview data={data} />
         </>
-        <Preview data={data} />
-      </>
-    </div>
+      ) : (
+        <p>Loading</p>
+      )}
+    </>
   );
 }
