@@ -15,7 +15,8 @@ export async function initializeIDB(data: RouteData) {
     // Create the compositor indexedDB
     openDB("compositor", 1, {
       upgrade(db) {
-        db.createObjectStore("clipPath");
+        const clippathStore = db.createObjectStore("clipPath");
+        clippathStore.createIndex("slug", "slug");
       },
     });
   }
@@ -30,8 +31,12 @@ export async function getClipPathFromIDB(id: string) {
   return clipPath;
 }
 
-export async function saveClipPathToIDB(clipPath: Array<number>, id: string) {
+export async function saveClipPathToIDB(
+  slug: string,
+  clipPath: Array<number>,
+  id: string
+) {
   const db1 = await openDB("compositor", 1);
-  db1.put("clipPath", clipPath, id);
+  db1.put("clipPath", { slug: slug, clipPath: clipPath }, id);
   db1.close();
 }

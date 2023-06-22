@@ -19,9 +19,11 @@ import { DrawClipPathData } from "@/shared/interfaces/clipPathData.interface";
 export default function ClipPathImage({
   imageProps,
   image,
+  slug,
 }: {
   imageProps: ImagePropsData;
   image: ImageData;
+  slug: string;
 }) {
   const { id, url, dbClipPath } = image;
   const dispatch = useDispatch();
@@ -83,9 +85,9 @@ export default function ClipPathImage({
   );
 
   useEffect(() => {
-    getClipPathFromIDB(id).then((clipPath) => {
+    getClipPathFromIDB(id).then((res) => {
       // If exists, use clip path from indexedDB else use the default clip path
-      const initialClipPath = clipPath || dbClipPath;
+      const initialClipPath = res?.clipPath || dbClipPath;
       drawClipPath({
         path: initialClipPath,
         config: { mass: 1, tension: 170, friction: 26 },
@@ -103,7 +105,7 @@ export default function ClipPathImage({
       const newPath = calculateClipPath(ix, iy, x, y);
       drawClipPath({ path: newPath });
       if (!active) {
-        saveClipPathToIDB(newPath, id);
+        saveClipPathToIDB(slug, newPath, id);
         // Calculate the drag handles after selection is over
         setDragHandleData(
           calculateDragHandlesFromClipPath(newPath, imageProps)
@@ -142,6 +144,7 @@ export default function ClipPathImage({
         dragHandleData={dragHandleData}
         imageProps={imageProps}
         drawClipPath={drawClipPath}
+        slug={slug}
       />
     </>
   );

@@ -7,7 +7,13 @@ import {
   ImagePropsData,
 } from "@/shared/interfaces/imageData.interface";
 
-export default function Selection({ image }: { image: ImageData }) {
+export default function Selection({
+  image,
+  slug,
+}: {
+  image: ImageData;
+  slug: string;
+}) {
   const { url } = image;
   // Reference to the image where we can get the properties
   const imageRef = useRef<HTMLImageElement>(null);
@@ -48,7 +54,9 @@ export default function Selection({ image }: { image: ImageData }) {
           fill={true}
           alt=""
         />
-        {imageProps && <ClipPathImage imageProps={imageProps} image={image} />}
+        {imageProps && (
+          <ClipPathImage imageProps={imageProps} image={image} slug={slug} />
+        )}
       </div>
     </>
   );

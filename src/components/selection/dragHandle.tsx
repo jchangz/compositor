@@ -11,12 +11,14 @@ export default function DragHandle({
   dragHandleData,
   drawClipPath,
   imageProps,
+  slug,
 }: {
   id: string;
   showDragHandles: Boolean;
   dragHandleData: Array<Array<number>>;
   drawClipPath: ({ path, config, immediate }: DrawClipPathData) => void;
   imageProps: ImagePropsData;
+  slug: string;
 }) {
   const dragHandleWidth = 26;
   const dragHandleBoundary = useRef<HTMLDivElement>(null);
@@ -91,7 +93,7 @@ export default function DragHandle({
       }));
 
       if (!active) {
-        saveClipPathToIDB(newPath, id);
+        saveClipPathToIDB(slug, newPath, id);
         animateDragHandles.start(() => ({ scale: 1 }));
         dragHandleData[originalIndex][0] += mx;
         dragHandleData[originalIndex][1] += my;

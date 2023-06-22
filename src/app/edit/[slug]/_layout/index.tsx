@@ -7,7 +7,7 @@ import Preview from "@/components/preview";
 import { RouteData, ImageData } from "@/shared/interfaces/imageData.interface";
 
 export default function EditLayout({ data }: { data: RouteData }) {
-  const { images } = data;
+  const { images, slug } = data;
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export default function EditLayout({ data }: { data: RouteData }) {
           <div className="grid grid-cols-2 w-full max-w-7xl">
             {images.map((img: ImageData) => (
               <div className="relative" key={img.id}>
-                <Selection image={img}></Selection>
+                <Selection image={img} slug={slug}></Selection>
               </div>
             ))}
           </div>
