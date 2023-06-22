@@ -12,7 +12,7 @@ export default function ClipPathPreview({ item }: { item: ImageData }) {
   const clipPathState = useAppSelector((state) => state.clipPath);
   const { data } = clipPathState;
   const { id, url } = item;
-
+  const newClipPath = data[id];
   const [clipPathProps, animateClipPath] = useSpring(() => ({
     from: {
       path: Array(8).fill(50),
@@ -32,13 +32,13 @@ export default function ClipPathPreview({ item }: { item: ImageData }) {
   );
 
   useEffect(() => {
-    if (data[id]) {
+    if (newClipPath) {
       drawClipPath({
-        path: data[id],
+        path: newClipPath,
         config: { mass: 1, tension: 170, friction: 26 },
       });
     }
-  }, [data, drawClipPath, id]);
+  }, [drawClipPath, newClipPath]);
 
   return (
     <>
