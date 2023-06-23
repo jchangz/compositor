@@ -6,10 +6,12 @@ interface ClipPathPayload {
   clipPath: Array<number>;
 }
 
+export interface ClipPathBatchPayload {
+  [id: string]: Array<number>;
+}
+
 interface ClipPathData {
-  data: {
-    [id: string]: Array<number>;
-  };
+  data: ClipPathBatchPayload;
 }
 
 const initialState: ClipPathData = { data: {} };
@@ -24,8 +26,11 @@ const clipPathSlice = createSlice({
         [action.payload.id]: action.payload.clipPath,
       };
     },
+    setClipPathBatch(state, action: PayloadAction<ClipPathBatchPayload>) {
+      state.data = { ...state.data, ...action.payload };
+    },
   },
 });
 
-export const { setClipPath } = clipPathSlice.actions;
+export const { setClipPath, setClipPathBatch } = clipPathSlice.actions;
 export default clipPathSlice.reducer;
