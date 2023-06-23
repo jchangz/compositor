@@ -1,5 +1,6 @@
 import { openDB } from "idb";
 import { RouteData } from "@/shared/interfaces/imageData.interface";
+import { ClipPathBatchPayload } from "@/store/clipPathSlice";
 
 export async function initializeIDB(data: RouteData) {
   if (!("indexedDB" in window)) {
@@ -29,6 +30,27 @@ export async function getClipPathFromIDB(id: string) {
   const clipPath = await db1.get("clipPath", id);
   db1.close();
   return clipPath;
+}
+
+export async function getClipPathBatchFromIDB(slug: string) {
+  const cursorData: ClipPathBatchPayload = {};
+  const db1 = await openDB("compositor", 1);
+  const store = db1.transaction("clipPath", "readonly").store.index("slug");
+
+  let cursor = await store.openCursor();
+  while (cursor) {
+    const primaryKey = cursor.primaryKey.toString();
+    const key = cursor.key;
+    const clipPath = cursor.value.clipPath;
+
+    if (key === slug) {
+      cursorData[primaryKey] = clipPath;
+    }
+    cursor = await cursor.continue();
+    if (!cursor) break;
+  }
+  db1.close();
+  return cursorData;
 }
 
 export async function saveClipPathToIDB(
