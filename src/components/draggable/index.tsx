@@ -8,6 +8,17 @@ import {
   ImagePropsData,
 } from "@/shared/interfaces/imageData.interface";
 
+const defaultImageProps = () => {
+  return {
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    height: 0,
+    width: 0,
+  };
+};
+
 export default function Draggable({
   images,
   slug,
@@ -15,19 +26,7 @@ export default function Draggable({
   images: ImageDataArray;
   slug: string;
 }) {
-  // Set default image props for Selection component
-  const [imageProps, setImageProps] = useState<Array<ImagePropsData>>(
-    images.map(() => {
-      return {
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
-        height: 0,
-        width: 0,
-      };
-    })
-  );
+  const [imageProps, setImageProps] = useState<Array<ImagePropsData>>([]);
   const [springs, api] = useSprings(images.length, () => ({
     opacity: 0,
   }));
@@ -42,7 +41,7 @@ export default function Draggable({
 
       const imagePropData = Array.from(imgElementArray).map((res) => {
         const { top, right, bottom, left, height, width } =
-          res.getBoundingClientRect();
+          res.firstElementChild?.getBoundingClientRect() || defaultImageProps();
         return {
           top: Math.round(top),
           right: Math.round(right),
