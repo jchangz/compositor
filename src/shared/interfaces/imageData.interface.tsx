@@ -1,14 +1,16 @@
-export interface RouteData {
-  slug: string;
-  title: string;
-  images: Array<ImageData>;
-}
-
 export interface ImageData {
   id: string;
   url: string;
   title: string;
   dbClipPath: Array<number>;
+}
+
+export type ImageDataArray = Array<ImageData>;
+
+export interface RouteData {
+  slug: string;
+  title: string;
+  images: ImageDataArray;
 }
 
 export interface ImagePropsData {
