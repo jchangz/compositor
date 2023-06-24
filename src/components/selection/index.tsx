@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import useWindowSize from "./useWindowSize";
+import { useState } from "react";
 import ClipPathImage from "./clipPath";
 import Image from "next/image";
 import {
@@ -10,54 +9,28 @@ import {
 export default function Selection({
   image,
   slug,
+  imageProps,
 }: {
   image: ImageData;
   slug: string;
+  imageProps: ImagePropsData;
 }) {
   const { url } = image;
-  // Reference to the image where we can get the properties
-  const imageRef = useRef<HTMLImageElement>(null);
-  // Keep the image properites in state to have the correct dimensions when we resize
-  const [imageProps, setImageProps] = useState<ImagePropsData | null>(null);
-  // Custom hook for monitoring window resize
-  const windowSize = useWindowSize();
-
-  const updateImageProps = () => {
-    if (imageRef.current) {
-      const { top, right, bottom, left, height, width } =
-        imageRef.current.getBoundingClientRect();
-
-      setImageProps({
-        top: Math.round(top),
-        right: Math.round(right),
-        bottom: Math.round(bottom + window.scrollY),
-        left: Math.round(left),
-        height: Math.round(height),
-        width: Math.round(width),
-      });
-    }
-  };
-
-  useEffect(() => {
-    if (windowSize) updateImageProps();
-  }, [windowSize]);
+  const [loaded, setLoaded] = useState(false);
 
   return (
     <>
-      <div className="relative aspect-[5/4]">
-        <Image
-          onLoadingComplete={updateImageProps}
-          ref={imageRef}
-          src={url}
-          className={imageProps ? "opacity-30" : "opacity-100"}
-          sizes="50vw"
-          fill={true}
-          alt=""
-        />
-        {imageProps && (
-          <ClipPathImage imageProps={imageProps} image={image} slug={slug} />
-        )}
-      </div>
+      <Image
+        onLoadingComplete={() => setLoaded(true)}
+        src={url}
+        className="opacity-30"
+        sizes="50vw"
+        fill={true}
+        alt=""
+      />
+      {loaded && (
+        <ClipPathImage imageProps={imageProps} image={image} slug={slug} />
+      )}
     </>
   );
 }
