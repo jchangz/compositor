@@ -7,7 +7,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
   const [data] = await getData(slug);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="p-4">
       <Providers>
         <EditLayout data={data} />
       </Providers>

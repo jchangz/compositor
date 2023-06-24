@@ -17,16 +17,19 @@ export default function EditLayout({ data }: { data: RouteData }) {
   return (
     <>
       {ready ? (
-        <>
-          <div className="grid grid-cols-2 w-full max-w-7xl">
+        <div className="grid grid-cols-3 gap-4 w-full max-w-[100rem]">
+          <div className="grid grid-cols-2 gap-4 col-span-2 w-full">
             {images.map((img: ImageData) => (
               <div className="relative" key={img.id}>
                 <Selection image={img} slug={slug}></Selection>
+                <p>{img.title}</p>
               </div>
             ))}
           </div>
-          <Preview data={data} />
-        </>
+          <div className="relative grid col-span-1 w-full">
+            <Preview data={data} />
+          </div>
+        </div>
       ) : (
         <p>Loading</p>
       )}
