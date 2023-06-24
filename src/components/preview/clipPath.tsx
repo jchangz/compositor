@@ -52,7 +52,7 @@ export default function ClipPathPreview({ item }: { item: ImageData }) {
             ),
           }}
         >
-          <Image src={url} fill={true} alt="" />
+          <Image src={url} sizes="50vw" fill={true} alt="" />
         </a.div>
       </div>
     </>
