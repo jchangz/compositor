@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from "react";
 import { useDrag } from "@use-gesture/react";
 import { useSprings, a } from "@react-spring/web";
 import { saveClipPathToIDB } from "@/database";
+import styles from "./Selection.module.css";
 import { ImagePropsData } from "@/shared/interfaces/imageData.interface";
 import { DrawClipPathData } from "@/shared/interfaces/clipPathData.interface";
 
@@ -105,7 +106,7 @@ export default function DragHandle({
     }
   );
   return (
-    <div className="handles">
+    <div className={styles.handles}>
       <div
         className="absolute left-1/2 top-1/2 translate-x-[-50%] translate-y-[-50%] pointer-events-none"
         ref={dragHandleBoundary}
@@ -116,6 +117,7 @@ export default function DragHandle({
       />
       {dragHandleProps.map(({ opacity, x, y, scale }, i) => (
         <a.span
+          className="absolute bg-transparent hover:cursor-grab"
           {...bindDragHandle(i)}
           style={{
             x,
